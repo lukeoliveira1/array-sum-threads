@@ -1,22 +1,15 @@
+import threading
 import time
 import matplotlib.pyplot as plt
 
-from functions import (
-    split_array,
-    threading_sum_array,
-    create_array,
-    trivial_split_array_and_manual_sum,
-    trivial_split_array_and_sum,
-)
-
+from functions import create_array, split_array, threading_sum_array
 
 n = [4, 8, 16, 32]
 size = [1000, 10000, 100000, 1000000]
 
-# n = input("How many threads do you want: ")
-# size = int(input("What size of array do you want: ")
+###############################################
 
-times_threading = []
+times_threads_full_array_reference = []
 
 for i in range(4):
     start_time = time.time()
@@ -27,40 +20,118 @@ for i in range(4):
 
     end_time = time.time()
 
-    times_threading.append(end_time - start_time)
+    times_threads_full_array_reference.append(end_time - start_time)
 
+################################################
 
-times_trivial_sum = []
-
-for i in range(4):
-    start_time = time.time()
-
-    array = create_array(size[i])
-    result_trivial = trivial_split_array_and_sum(array, n[i])
-
-    end_time = time.time()
-
-    times_trivial_sum.append(end_time - start_time)
-
-times_trivial_manual_sum = []
+times_threads_part_reference_manual_sum = []
 
 for i in range(4):
-    start_time = time.time()
+    threads_list = list()
+    threads_sum_list = list()
 
-    array = create_array(size[i])
-    result_trivial = trivial_split_array_and_manual_sum(array, n[i])
+    global array2
+    array2 = create_array(size[i])
+    n_threads = n[i]
 
-    end_time = time.time()
+    k, r = divmod(len(array2), n_threads)
 
-    times_trivial_manual_sum.append(end_time - start_time)
+    def threading_sum_array(start, end):
 
+        def sum_part(array_part):
+            total_sum = 0
+            for i in array_part:
+                total_sum += i
+            threads_sum_list.append(total_sum)
 
-plt.plot(size, times_threading, marker="o", label="Threading Sum Array")
-plt.plot(size, times_trivial_sum, marker="o", label="Trivial Sum Array")
-plt.plot(size, times_trivial_manual_sum, marker="o", label="Trivial Manual Sum Array")
-plt.xlabel("Tamanho do Array")
-plt.ylabel("Tempo (segundos)")
-plt.title("Comparação do Tempo de Execução")
+        thread = threading.Thread(target=sum_part, args=(array2[start:end],))
+        threads_list.append(thread)
+        thread.start()
+
+    time_start = time.time()
+
+    start = 0
+    for i in range(n_threads):
+        end = start + k + (1 if i < r else 0)
+        thread = threading_sum_array(start, end)
+        start = end
+
+    for thread in threads_list:
+        thread.join()
+
+    result = sum(threads_sum_list)
+
+    time_end = time.time()
+
+    times_threads_part_reference_manual_sum.append(time_end - time_start)
+
+#############################################################
+
+times_threads_part_reference_sum = []
+
+for i in range(4):
+
+    threads_list = list()
+    threads_sum_list = list()
+
+    global array3
+    array3 = create_array(size[i])
+    n_threads = n[i]
+
+    k, r = divmod(len(array3), n_threads)
+
+    def threading_sum_array(start, end):
+
+        def sum_part(array_part):
+            part_sum = sum(array_part)
+            threads_sum_list.append(part_sum)
+
+        thread = threading.Thread(target=sum_part, args=(array3[start:end],))
+        threads_list.append(thread)
+        thread.start()
+
+    time_start = time.time()
+
+    start = 0
+    for i in range(n_threads):
+        end = start + k + (1 if i < r else 0)
+        thread = threading_sum_array(start, end)
+        start = end
+
+    for thread in threads_list:
+        thread.join()
+
+    result = sum(threads_sum_list)
+
+    time_end = time.time()
+
+    times_threads_part_reference_sum.append(time_end - time_start)
+
+############################################################
+
+plt.plot(
+    size,
+    times_threads_full_array_reference,
+    marker="o",
+    label="With Full Array Reference",
+)
+plt.plot(
+    size,
+    times_threads_part_reference_manual_sum,
+    marker="o",
+    label="With Part Array Reference And Manual Sum Array",
+)
+plt.plot(
+    size,
+    times_threads_part_reference_sum,
+    marker="o",
+    label="With Part Array Reference And Sum Array",
+)
+plt.xlabel("Array Size")
+plt.ylabel("Time (s)")
+plt.xscale("log")
+plt.xticks(size, size)
+plt.title("Comparison of Execution Time - List Sum Threads ")
 plt.legend()
 plt.grid(True)
 plt.show()

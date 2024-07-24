@@ -1,15 +1,10 @@
-import random
 import threading
 import time
 
-# usando um array global e compartilhando os "pedaços" dele
-# usando o sum nas threads
+from functions import create_array
 
-def create_array(size):
-    return [random.randint(1, 1000) for _ in range(size)]
+# Passing a part of the array reference
 
-
-################
 
 threads_list = list()
 threads_sum_list = list()
@@ -24,12 +19,15 @@ k, r = divmod(len(array), n_threads)
 def threading_sum_array(start, end):
 
     def sum_part(array_part):
-        part_sum = sum(array_part)
-        threads_sum_list.append(part_sum)
-    # print('aaaaaa: ', array[start:end])
-    thread = threading.Thread(target=sum_part, args=(array[start:end], ))
+        total_sum = 0
+        for i in array_part:
+            total_sum += i
+        threads_sum_list.append(total_sum)
+
+    thread = threading.Thread(target=sum_part, args=(array[start:end],))
     threads_list.append(thread)
     thread.start()
+
 
 time_start = time.time()
 
@@ -46,5 +44,5 @@ result = sum(threads_sum_list)
 
 time_end = time.time()
 
-print("Resultado: ", result)
-print("Tempo: ", time_end - time_start, "s")
+print("Result: ", result)
+print("Time: ", time_end - time_start, "s")
