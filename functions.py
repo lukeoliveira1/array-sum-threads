@@ -40,12 +40,12 @@ def threading_sum_array(array_parts, n_threads):
     return sum(threads_sum_list)
 
 
-def trivial_split_array_and_sum(array, n_threads):
+def trivial_split_array_and_sum(array, n_parts):
     total_sum = 0
-    k, r = divmod(len(array), n_threads)  # size of each part
+    k, r = divmod(len(array), n_parts)  # size of each part
 
     start = 0
-    for i in range(n_threads):
+    for i in range(n_parts):
         end = start + k + (1 if i < r else 0)
         part_array = array[start:end]
         total_sum += sum(part_array)
@@ -54,12 +54,12 @@ def trivial_split_array_and_sum(array, n_threads):
     return total_sum
 
 
-def trivial_split_array_and_manual_sum(array, n_threads):
+def trivial_split_array_and_manual_sum(array, n_parts):
     total_sum = 0
-    k, r = divmod(len(array), n_threads)  # size of each part
+    k, r = divmod(len(array), n_parts)  # size of each part
 
     start = 0
-    for i in range(n_threads):
+    for i in range(n_parts):
         end = start + k + (1 if i < r else 0)
         part_array = array[start:end]
         for i in part_array:
