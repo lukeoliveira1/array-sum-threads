@@ -5,6 +5,7 @@ from functions import (
     split_array,
     threading_sum_array,
     create_array,
+    trivial_split_array_and_manual_sum,
     trivial_split_array_and_sum,
 )
 
@@ -29,7 +30,7 @@ for i in range(4):
     times_threading.append(end_time - start_time)
 
 
-times_trivial = []
+times_trivial_sum = []
 
 for i in range(4):
     start_time = time.time()
@@ -39,11 +40,24 @@ for i in range(4):
 
     end_time = time.time()
 
-    times_trivial.append(end_time - start_time)
+    times_trivial_sum.append(end_time - start_time)
+
+times_trivial_manual_sum = []
+
+for i in range(4):
+    start_time = time.time()
+
+    array = create_array(size[i])
+    result_trivial = trivial_split_array_and_manual_sum(array, n[i])
+
+    end_time = time.time()
+
+    times_trivial_manual_sum.append(end_time - start_time)
 
 
 plt.plot(size, times_threading, marker="o", label="Threading Sum Array")
-plt.plot(size, times_trivial, marker="o", label="Trivial Sum Array")
+plt.plot(size, times_trivial_sum, marker="o", label="Trivial Sum Array")
+plt.plot(size, times_trivial_manual_sum, marker="o", label="Trivial Manual Sum Array")
 plt.xlabel("Tamanho do Array")
 plt.ylabel("Tempo (segundos)")
 plt.title("Comparação do Tempo de Execução")

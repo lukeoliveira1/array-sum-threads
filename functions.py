@@ -52,3 +52,18 @@ def trivial_split_array_and_sum(array, n_threads):
         start = end
 
     return total_sum
+
+
+def trivial_split_array_and_manual_sum(array, n_threads):
+    total_sum = 0
+    k, r = divmod(len(array), n_threads)  # size of each part
+
+    start = 0
+    for i in range(n_threads):
+        end = start + k + (1 if i < r else 0)
+        part_array = array[start:end]
+        for i in part_array:
+            total_sum += i
+        start = end
+
+    return total_sum
